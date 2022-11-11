@@ -1,8 +1,11 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 app.use(express.json());
 
 morgan.token("body", req => JSON.stringify(req.body));
@@ -83,6 +86,24 @@ app.post("/api/persons", (req, res) => {
   res.json(person);
 });
 
-console.log("Server running on port 3001");
-console.log("http://localhost:3001");
-app.listen(3001);
+app.put("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const person = phonebok.find((person) => person.id === id);
+
+  if (person) {
+    const number = req.body.number;
+    const updatedPerson = {
+      id: person.id,
+      name: person.name,
+      number: number,
+    };
+
+    phonebok = phonebok.map((person) =>
+      person.id === id ? updatedPerson : person
+    );
+    res.json(updatedPerson);
+  }
+});
+
+console.log("Server running on port " + PORT);
+app.listen(PORT);
