@@ -31,15 +31,17 @@ app.get("/api/persons", (req, res) => {
 app.get("/api/persons/:id", (req, res, next) => {
   const id = req.params.id;
 
-  mongoConnect.then(() => {
-    return Person.findById(id).then((person) => {
-      if (person) {
-        res.json(person);
-      } else {
-        res.status(404).send(httpCat(404));
-      }
-    });
-  }).catch((error) => next(error));
+  mongoConnect
+    .then(() => {
+      return Person.findById(id).then((person) => {
+        if (person) {
+          res.json(person);
+        } else {
+          res.status(404).send(httpCat(404));
+        }
+      });
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/info", (req, res) => {
@@ -59,9 +61,7 @@ app.delete("/api/persons/:id", (req, res) => {
 
   mongoConnect.then(() => {
     Person.findByIdAndDelete(id)
-      .then((result) => {
-        res.status(204).end();
-      })
+      .then(res.status(204).end())
       .catch((error) => {
         console.log(error);
         res.status(400).send({ error: "malformatted id" });
@@ -109,13 +109,12 @@ app.put("/api/persons/:id", async (req, res) => {
       id,
       { number: req.body.number },
       { new: true, runValidators: true, context: "query" }
-    )
+    );
     res.json(updatedPerson);
-  } catch (error) { 
+  } catch (error) {
     res.status(400).send({ error: error.message });
   }
 });
-
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
